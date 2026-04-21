@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Чемодан">
+<meta name="theme-color" content="#1a1a2e">
+<title>Чемодан</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #0f0f1a;
+  --bg2: #1a1a2e;
+  --bg3: #16213e;
+  --card: #1e1e32;
+  --card2: #252540;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #f0eef8;
+  --text2: rgba(240,238,248,0.55);
+  --text3: rgba(240,238,248,0.3);
+  --accent: #7c6af7;
+  --accent2: #a599ff;
+  --accent-bg: rgba(124,106,247,0.15);
+  --accent-bg2: rgba(124,106,247,0.25);
+  --green: #4ecdc4;
+  --green-bg: rgba(78,205,196,0.12);
+  --pink: #f7a2c0;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 22px;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  font-family: 'Manrope', -apple-system, sans-serif;
+  color: var(--text);
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100%;
+  position: relative;
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  padding: 56px 22px 16px;
+  background: linear-gradient(180deg, var(--bg2) 0%, transparent 100%);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; }
+.topbar h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; background: linear-gradient(135deg, var(--text) 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.topbar p { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* ---- NAV ---- */
+.nav {
+  display: flex;
+  margin: 0 16px 4px;
+  background: var(--card);
+  border-radius: var(--r-lg);
+  padding: 4px;
+  position: sticky;
+  top: 100px;
+  z-index: 19;
+  border: 0.5px solid var(--border);
+}
+.nav-btn {
+  flex: 1;
+  padding: 9px 0;
+  font-size: 13px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text2);
+  border-radius: var(--r-md);
+  transition: all .2s;
+  font-family: inherit;
+  letter-spacing: 0.1px;
+}
+.nav-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(124,106,247,0.4);
+}
+
+/* ---- SCREENS ---- */
+.screen { display: none; padding-bottom: 50px; animation: fadeIn .2s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- SCENARIO CARDS ---- */
+.sc-list { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+.sc-card {
+  background: var(--card);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  transition: transform .15s;
+}
+.sc-card:active { transform: scale(0.99); }
+
+.sc-head { display: flex; align-items: center; padding: 14px 16px; gap: 12px; }
+.sc-emoji-wrap {
+  width: 44px; height: 44px;
+  background: var(--accent-bg);
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.sc-info { flex: 1; min-width: 0; }
+.sc-name { font-size: 15px; font-weight: 700; }
+.sc-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.sc-actions { display: flex; gap: 6px; }
+.icon-btn {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  border: 0.5px solid var(--border2);
+  background: var(--card2);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.icon-btn:active { background: var(--border2); }
+
+.sc-chips {
+  border-top: 0.5px solid var(--border);
+  padding: 10px 16px 12px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.item-chip {
+  font-size: 12px; font-weight: 500;
+  padding: 4px 10px;
+  background: var(--card2);
+  border-radius: 20px;
+  color: var(--text2);
+  border: 0.5px solid var(--border);
+}
+
+/* ---- FORM ---- */
+.form-wrap {
+  margin: 6px 16px 16px;
+  background: var(--card);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r-xl);
+  padding: 18px;
+}
+.form-wrap h3 { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+.field-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 8px; display: block; letter-spacing: 0.4px; text-transform: uppercase; }
+.field-group { margin-bottom: 14px; }
+
+.field-input {
+  width: 100%;
+  font-size: 14px;
+  padding: 11px 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-weight: 500;
+  outline: none;
+  transition: border-color .2s;
+}
+.field-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.field-input::placeholder { color: var(--text3); }
+
+.emoji-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.emoji-opt {
+  font-size: 22px; cursor: pointer;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-sm);
+  border: 1.5px solid transparent;
+  background: var(--card2);
+  transition: all .15s;
+}
+.emoji-opt:active { transform: scale(0.9); }
+.emoji-opt.sel { border-color: var(--accent); background: var(--accent-bg2); }
+
+.chips-area {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  min-height: 52px;
+  cursor: text;
+  background: var(--bg);
+  transition: border-color .2s;
+}
+.chips-area:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+
+.chip-tag {
+  font-size: 13px; font-weight: 600;
+  padding: 4px 10px;
+  background: var(--accent-bg2);
+  color: var(--accent2);
+  border-radius: 20px;
+  display: flex; align-items: center; gap: 5px;
+  border: 0.5px solid rgba(124,106,247,0.3);
+}
+.chip-tag button {
+  background: none; border: none; cursor: pointer;
+  color: var(--accent2); font-size: 16px;
+  line-height: 1; padding: 0; font-family: inherit;
+  opacity: 0.7;
+}
+.chip-tag button:hover { opacity: 1; }
+.chips-area input {
+  border: none; outline: none;
+  font-size: 13px; background: transparent;
+  min-width: 100px; flex: 1;
+  color: var(--text); font-family: inherit;
+  font-weight: 500; padding: 2px 0;
+}
+.chips-area input::placeholder { color: var(--text3); }
+
+.save-btn {
+  width: 100%; padding: 13px;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: var(--r-md);
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 16px rgba(124,106,247,0.35);
+  transition: all .15s;
+  letter-spacing: 0.2px;
+}
+.save-btn:active { background: #6558e0; transform: scale(0.99); }
+
+/* ---- BUILDER ---- */
+.builder { padding: 16px; }
+.builder h3 { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.trip-input {
+  width: 100%; font-size: 14px; font-weight: 500;
+  padding: 11px 14px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  background: var(--card);
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  margin-bottom: 14px;
+  transition: border-color .2s;
+}
+.trip-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+.trip-input::placeholder { color: var(--text3); }
+
+.sc-toggles { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.sc-toggle {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 16px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  cursor: pointer;
+  background: var(--card);
+  transition: all .2s;
+}
+.sc-toggle.on {
+  border-color: var(--accent);
+  background: var(--accent-bg);
+  box-shadow: 0 4px 16px rgba(124,106,247,0.15);
+}
+.toggle-emoji-wrap {
+  width: 38px; height: 38px;
+  background: var(--card2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 19px; flex-shrink: 0;
+  transition: background .2s;
+}
+.sc-toggle.on .toggle-emoji-wrap { background: var(--accent-bg2); }
+.toggle-name { font-size: 14px; font-weight: 600; flex: 1; }
+.sc-toggle.on .toggle-name { color: var(--accent2); }
+.toggle-count { font-size: 12px; color: var(--text3); font-weight: 500; }
+.sc-toggle.on .toggle-count { color: var(--accent); }
+.toggle-dot {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+  transition: all .2s;
+  display: flex; align-items: center; justify-content: center;
+}
+.sc-toggle.on .toggle-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.sc-toggle.on .toggle-dot::after {
+  content: '';
+  display: block;
+  width: 5px; height: 9px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.build-btn {
+  width: 100%; padding: 14px;
+  background: var(--accent);
+  color: #fff; border: none;
+  border-radius: var(--r-md);
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 16px rgba(124,106,247,0.35);
+  transition: all .15s;
+  letter-spacing: 0.2px;
+}
+.build-btn:disabled {
+  background: var(--card2);
+  color: var(--text3);
+  cursor: default;
+  box-shadow: none;
+}
+.build-btn:not(:disabled):active { background: #6558e0; transform: scale(0.99); }
+
+/* ---- CHECKLIST ---- */
+.checklist { padding: 16px; }
+.back-btn {
+  font-size: 13px; font-weight: 600;
+  color: var(--accent2);
+  background: none; border: none;
+  cursor: pointer; padding: 0;
+  margin-bottom: 16px;
+  font-family: inherit;
+  display: flex; align-items: center; gap: 5px;
+}
+
+.cl-toprow { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px; }
+.cl-title { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+.cl-pct { font-size: 14px; font-weight: 700; color: var(--accent2); }
+
+.prog {
+  height: 6px;
+  background: var(--card2);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--accent), var(--green));
+  transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+
+.cl-section { margin-bottom: 16px; }
+.cl-sec-title {
+  font-size: 11px; font-weight: 700;
+  color: var(--text3);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 7px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.cl-sec-line { flex: 1; height: 0.5px; background: var(--border); }
+
+.cl-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: background .1s;
+}
+.cl-item:active { background: var(--card2); }
+
+.cb {
+  width: 22px; height: 22px;
+  border-radius: 7px;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s;
+  background: var(--card2);
+}
+.cb.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(124,106,247,0.4);
+}
+.cb.on::after {
+  content: '';
+  display: block;
+  width: 5px; height: 10px;
+  border: 2.5px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
+}
+.cl-item-name { font-size: 14px; font-weight: 500; flex: 1; }
+.cl-item-name.done { text-decoration: line-through; color: var(--text3); }
+
+.cl-reset {
+  margin-top: 24px;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--text2);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.cl-reset:active { background: var(--card2); }
+
+/* ---- EMPTY ---- */
+.empty {
+  text-align: center;
+  padding: 50px 20px;
+  color: var(--text3);
+  font-size: 14px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+.empty-icon { font-size: 44px; display: block; margin-bottom: 12px; }
+
+/* ---- COUNTER BADGE ---- */
+.sel-count {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px; font-weight: 700;
+  border-radius: 10px;
+  padding: 0 5px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* ---- DIVIDER ---- */
+.section-divider {
+  font-size: 11px; font-weight: 700;
+  color: var(--text3);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 6px 0 10px;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <h1>🧳 Чемодан</h1>
+      <p>Конструктор списков для поездок</p>
+    </div>
+  </div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" id="tab-scenarios" onclick="go('scenarios')">Сценарии</button>
+  <button class="nav-btn" id="tab-builder" onclick="go('builder')">Поездка</button>
+  <button class="nav-btn" id="tab-checklist" onclick="go('checklist')">Список</button>
+</div>
+
+<!-- SCENARIOS -->
+<div class="screen active" id="screen-scenarios">
+  <div class="sc-list" id="sc-list"></div>
+  <div class="form-wrap">
+    <h3 id="form-title">Новый сценарий</h3>
+    <div class="field-group">
+      <span class="field-label">Иконка</span>
+      <div class="emoji-row" id="emoji-row"></div>
+    </div>
+    <div class="field-group">
+      <span class="field-label">Название</span>
+      <input class="field-input" id="inp-name" placeholder="Поезд, Палатка, Зарядки…">
+    </div>
+    <div class="field-group">
+      <span class="field-label">Вещи — Enter или запятая чтобы добавить</span>
+      <div class="chips-area" id="chips-area" onclick="document.getElementById('chip-input').focus()">
+        <input id="chip-input" placeholder="беруши, спальник, зарядка…">
+      </div>
+    </div>
+    <button class="save-btn" onclick="saveScenario()">Сохранить сценарий</button>
+  </div>
+</div>
+
+<!-- BUILDER -->
+<div class="screen" id="screen-builder">
+  <div class="builder">
+    <h3>Выбери сценарии для поездки</h3>
+    <input class="trip-input" id="trip-name" placeholder="Название поездки (необязательно)">
+    <div class="sc-toggles" id="sc-toggles"></div>
+    <button class="build-btn" id="build-btn" onclick="buildTrip()">Собрать чемодан →</button>
+  </div>
+</div>
+
+<!-- CHECKLIST -->
+<div class="screen" id="screen-checklist">
+  <div class="checklist">
+    <button class="back-btn" onclick="go('builder')">← Изменить сценарии</button>
+    <div class="cl-toprow">
+      <span class="cl-title" id="cl-title">Список вещей</span>
+      <span class="cl-pct" id="cl-pct">0%</span>
+    </div>
+    <div class="prog"><div class="prog-fill" id="cl-fill" style="width:0%"></div></div>
+    <div id="cl-body"></div>
+    <button class="cl-reset" onclick="resetChecklist()">Сбросить галочки</button>
+  </div>
+</div>
+
+<script>
+const EMOJIS = ['🚂','⛺','🔌','✈️','🏖️','🏔️','🎒','💼','🧳','🏕️','🚗','🛳️','🎿','👗','💊','📷','🧴','🍱','🛏️','🥾','🧊','🎸','🏋️','🎮','🌿','🐾','🧸','💻','📚','🎨'];
+
+let scenarios = JSON.parse(localStorage.getItem('packing_sc') || '[]');
+let checked = {};
+let tripIdxs = [];
+let editIdx = -1;
+let selEmoji = EMOJIS[0];
+let chips = [];
+
+function persist() { localStorage.setItem('packing_sc', JSON.stringify(scenarios)); }
+
+// ---- NAV ----
+function go(s) {
+  ['scenarios','builder','checklist'].forEach(n => {
+    document.getElementById('screen-'+n).classList.toggle('active', n===s);
+    document.getElementById('tab-'+n).classList.toggle('active', n===s);
+  });
+  if (s==='scenarios') renderScenarios();
+  if (s==='builder') renderBuilder();
+  if (s==='checklist') renderChecklist();
+}
+
+// ---- EMOJIS ----
+function renderEmojis() {
+  document.getElementById('emoji-row').innerHTML = EMOJIS.map(e =>
+    `<span class="emoji-opt${selEmoji===e?' sel':''}" onclick="pickEmoji('${e}')">${e}</span>`
+  ).join('');
+}
+function pickEmoji(e) { selEmoji = e; renderEmojis(); }
+
+// ---- CHIPS ----
+function addChips(raw) {
+  raw.split(',').map(v=>v.trim()).filter(Boolean).forEach(v => {
+    if (!chips.includes(v)) chips.push(v);
+  });
+  renderChips();
+}
+function removeChip(i) { chips.splice(i,1); renderChips(); }
+function renderChips() {
+  const area = document.getElementById('chips-area');
+  const inp = document.getElementById('chip-input');
+  area.innerHTML = '';
+  chips.forEach((c,i) => {
+    const d = document.createElement('div');
+    d.className = 'chip-tag';
+    d.innerHTML = `${c} <button onclick="removeChip(${i})">×</button>`;
+    area.appendChild(d);
+  });
+  area.appendChild(inp);
+}
+document.getElementById('chip-input').addEventListener('keydown', e => {
+  if (e.key==='Enter' || e.key===',') {
+    e.preventDefault();
+    const v = e.target.value.trim();
+    if (v) { addChips(v); e.target.value=''; }
+  }
+  if (e.key==='Backspace' && !e.target.value && chips.length) {
+    chips.pop(); renderChips();
+  }
+});
+
+// ---- SCENARIOS ----
+function renderScenarios() {
+  renderEmojis();
+  const el = document.getElementById('sc-list');
+  if (!scenarios.length) {
+    el.innerHTML = `<div class="empty"><span class="empty-icon">📋</span>Пока нет сценариев.<br>Создай первый — например<br>«Поезд», «Палатка» или «Зарядки».</div>`;
+    return;
+  }
+  el.innerHTML = scenarios.map((sc,i) => `
+    <div class="sc-card">
+      <div class="sc-head">
+        <div class="sc-emoji-wrap">${sc.emoji}</div>
+        <div class="sc-info">
+          <div class="sc-name">${sc.name}</div>
+          <div class="sc-sub">${sc.items.length} ${plural(sc.items.length,'вещь','вещи','вещей')}</div>
+        </div>
+        <div class="sc-actions">
+          <button class="icon-btn" onclick="editSc(${i})">✏️</button>
+          <button class="icon-btn" onclick="delSc(${i})">🗑️</button>
+        </div>
+      </div>
+      <div class="sc-chips">${sc.items.map(it=>`<span class="item-chip">${it}</span>`).join('')}</div>
+    </div>`).join('');
+}
+
+function editSc(i) {
+  editIdx = i;
+  const sc = scenarios[i];
+  selEmoji = sc.emoji;
+  chips = [...sc.items];
+  document.getElementById('inp-name').value = sc.name;
+  document.getElementById('form-title').textContent = 'Редактировать сценарий';
+  renderChips(); renderEmojis();
+  document.querySelector('.form-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+function delSc(i) {
+  if (!confirm('Удалить «'+scenarios[i].name+'»?')) return;
+  scenarios.splice(i,1); persist(); renderScenarios();
+}
+
+function saveScenario() {
+  const name = document.getElementById('inp-name').value.trim();
+  const inpVal = document.getElementById('chip-input').value.trim();
+  if (inpVal) { addChips(inpVal); document.getElementById('chip-input').value=''; }
+  if (!name) { alert('Введи название сценария'); return; }
+  if (!chips.length) { alert('Добавь хотя бы одну вещь'); return; }
+  const sc = { emoji: selEmoji, name, items: [...chips] };
+  if (editIdx >= 0) { scenarios[editIdx] = sc; editIdx = -1; }
+  else scenarios.push(sc);
+  persist();
+  chips = []; selEmoji = EMOJIS[0]; editIdx = -1;
+  document.getElementById('inp-name').value = '';
+  document.getElementById('form-title').textContent = 'Новый сценарий';
+  renderChips(); renderScenarios();
+}
+
+// ---- BUILDER ----
+function renderBuilder() {
+  const el = document.getElementById('sc-toggles');
+  const btn = document.getElementById('build-btn');
+  if (!scenarios.length) {
+    el.innerHTML = `<div class="empty"><span class="empty-icon">🗂️</span>Сначала создай сценарии<br>во вкладке «Сценарии».</div>`;
+    btn.disabled = true; return;
+  }
+  btn.disabled = false;
+  el.innerHTML = scenarios.map((sc,i) => {
+    const on = tripIdxs.includes(i);
+    return `<div class="sc-toggle${on?' on':''}" onclick="toggleSc(${i})">
+      <div class="toggle-emoji-wrap">${sc.emoji}</div>
+      <span class="toggle-name">${sc.name}</span>
+      <span class="toggle-count">${sc.items.length} вещ.</span>
+      <div class="toggle-dot"></div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSc(i) {
+  const idx = tripIdxs.indexOf(i);
+  if (idx >= 0) tripIdxs.splice(idx,1); else tripIdxs.push(i);
+  renderBuilder();
+}
+
+function buildTrip() {
+  if (!tripIdxs.length) { alert('Выбери хотя бы один сценарий'); return; }
+  checked = {};
+  go('checklist');
+}
+
+// ---- CHECKLIST ----
+function renderChecklist() {
+  const name = document.getElementById('trip-name').value.trim();
+  document.getElementById('cl-title').textContent = name || 'Список вещей';
+  const el = document.getElementById('cl-body');
+  if (!tripIdxs.length) {
+    el.innerHTML = `<div class="empty"><span class="empty-icon">🎒</span>Выбери сценарии<br>во вкладке «Поездка».</div>`;
+    return;
+  }
+  let total=0, done=0, html='';
+  tripIdxs.forEach(i => {
+    const sc = scenarios[i];
+    html += `<div class="cl-section">
+      <div class="cl-sec-title">${sc.emoji} ${sc.name}<div class="cl-sec-line"></div></div>`;
+    sc.items.forEach((item,ii) => {
+      const key=`${i}-${ii}`, on=!!checked[key];
+      if(on) done++; total++;
+      html += `<div class="cl-item" onclick="tick('${key}')">
+        <div class="cb${on?' on':''}"></div>
+        <span class="cl-item-name${on?' done':''}">${item}</span>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  el.innerHTML = html;
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('cl-pct').textContent = pct+'%';
+  document.getElementById('cl-fill').style.width = pct+'%';
+}
+
+function tick(key) { checked[key]=!checked[key]; renderChecklist(); }
+function resetChecklist() { if(confirm('Сбросить все галочки?')) { checked={}; renderChecklist(); } }
+
+function plural(n, one, few, many) {
+  const m=n%100, m10=n%10;
+  if(m>=11&&m<=14) return many;
+  if(m10===1) return one;
+  if(m10>=2&&m10<=4) return few;
+  return many;
+}
+
+renderEmojis();
+renderScenarios();
+</script>
+</body>
+</html>
